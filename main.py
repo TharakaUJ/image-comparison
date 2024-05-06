@@ -6,6 +6,7 @@ original_folder = "/home/tharaka/Documents/image-comparison/OriginalImages/Origi
 edited_folder = "/home/tharaka/Documents/image-comparison/OriginalImages/Edited"
 similar_folder = "/home/tharaka/Documents/image-comparison/SimilarImages"
 different_folder = "/home/tharaka/Documents/image-comparison/DifferentImages"
+max_width = 1800  # Set the maximum width for displaying images
 
 for filename in os.listdir(original_folder):
     original_image = os.path.join(original_folder, filename)
@@ -19,6 +20,13 @@ for filename in os.listdir(original_folder):
     max_height = max(original_img.shape[0], edited_img.shape[0])
     original_img_resized = cv2.resize(original_img, (int(original_img.shape[1] * max_height / original_img.shape[0]), max_height))
     edited_img_resized = cv2.resize(edited_img, (int(edited_img.shape[1] * max_height / edited_img.shape[0]), max_height))
+
+    # Check if the images exceed the maximum width
+    if original_img_resized.shape[1] + edited_img_resized.shape[1] > max_width:
+        # If the combined width exceeds the maximum, scale down both images
+        scale_factor = max_width / (original_img_resized.shape[1] + edited_img_resized.shape[1])
+        original_img_resized = cv2.resize(original_img_resized, (int(original_img_resized.shape[1] * scale_factor), int(original_img_resized.shape[0] * scale_factor)))
+        edited_img_resized = cv2.resize(edited_img_resized, (int(edited_img_resized.shape[1] * scale_factor), int(edited_img_resized.shape[0] * scale_factor)))
 
     # Concatenate images side by side
     compared_img = cv2.hconcat([original_img_resized, edited_img_resized])
@@ -42,6 +50,5 @@ for filename in os.listdir(original_folder):
         break  # Terminate the loop if the user presses 'q'
 
     print("Images moved successfully.")
-print("all done")
 
 cv2.destroyAllWindows()
